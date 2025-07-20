@@ -202,7 +202,7 @@ print_nichenetwork<-function(nnt,file="nichenetwork.pdf",
   if(mark_groups){legend("topright", legend = names(clone1tag_list),col = mark.col,
                          pch = 21, pt.bg = mark.col, pt.cex = 1,cex = 0.5,bty = "n")}
   if(highlight==T){
-    nichetags=names(nnt$niche)[sapply(nnt$niche,length)>1]
+    nichetags=names(nnt$niche)[sapply(nnt$niche,length)>0]
     for(tag in nichetags){
       vcolors2=vcolors
       vcolors2[!(V(g)$name %in% names(nnt[["niche"]][[tag]]))]="grey80"
