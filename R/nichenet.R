@@ -199,7 +199,7 @@ Gephi_prepare<-function(nnt,file="Gephi_input.xlsx"){
   addWorksheet(wb, "edges")
   writeData(wb, "edges", res,rowNames = F)
   addWorksheet(wb, "nodes")
-  writeData(wb, "nodes", data.frame(node=nnt$cloneID),rowNames = F)
+  writeData(wb, "nodes", data.frame(Id=nnt$cloneID),rowNames = F)
   saveWorkbook(wb, file, overwrite = TRUE)
 }
 
