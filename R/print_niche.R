@@ -329,7 +329,7 @@ print_clustertag<-function(nnt,file="clustertag.pdf"){
   }
   #library(cowplot)
   pg=plot_grid(plotlist = plot.list,ncol=2,align = "hv")
-  ggsave(plot = pg,filename = file,height = 1.5*length(unique(cell_clusters)))
+  ggsave(plot = pg,filename = file,height = 1.5*length(unique(cell_clusters)),limitsize = F)
 }
 
 
