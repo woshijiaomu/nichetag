@@ -6,38 +6,39 @@ install.packages(c("Polychrome","stringdist","stringr","ggplot2","cowplot","igra
 if(!require(devtools)){
 	install.packages("devtools")
 }
-if(!require(nichetags)){
+if(!require(nichetag)){
 	library(devtools)
-	install_github("woshijiaomu/nichetags")
+	install_github("woshijiaomu/nichetag")
 }
 ```
 
 after installation，attach the package in R：
 
 ```
-library(nichetags)
+library(nichetag)
 ```
 
 Quick Start Guide：
 
 ```
 #attach R package,load sample data
-library(nichetags)
-data(example_scObject)
+library(nichetag)
+data(example)
 
 #calculate connectome
-nnt=Dnichenetwork(scObj,groupby="cell_clusters")
+nnt=Dnichenetwork(scObject,groupby="cell_clusters")
 summary(nnt)
 
 #draw clone-clone network
 print_nichenetwork(nnt,file="nichenetwork.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
 
 #draw quanlity control figures
-print_nichetag(nnt, file = "nichetag_qc1.pdf")
-print_clustertag(nnt, file = "cluster_qc1.pdf")
-tag_cancer_noncancer(nnt, file = "celltype_qc1.pdf")
-tag_cci(nnt, file = "cci_qc1.pdf")
-
+print_nichetag(nnt, file = "nichetag.pdf")
+print_clustertag(nnt, file = "cluster.pdf")
+tag_cancer_noncancer(nnt, file = "celltype.pdf")
+tag_cci(nnt, file = "cci.pdf")
+clonetype(nnt, file="clonetype.pdf")
+tag_cellclonetype(nnt, file="tag2celltype_clonetype.pdf")
 #draw niche-niche network
 print_nichenet(nnt,file="niche2nichenetwork.pdf",vsize = 10)
 
@@ -68,7 +69,7 @@ write.csv(niche2clone.df,file = "niche2clone.csv")
 #dnnt=Dnichenetwork(tag_expression,cell_clusters,direction = T)
 
 #draw clone expression matrix
-clonematrix=Clone_expr(scObj,nnt,seurat_layer="counts")
+clonematrix=Clone_expr(scObject,nnt,seurat_layer="counts")
 write.csv(clonematrix,"clone_matrix.csv")
 
 ```
