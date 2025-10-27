@@ -2,7 +2,7 @@
 you can install it from github:
 
 ```
-install.packages(c("Polychrome","stringdist","stringr","ggplot2","cowplot","igraph"))
+install.packages(c("Seurat","Polychrome","stringdist","stringr","ggplot2","cowplot","igraph","openxlsx"))
 if(!require(devtools)){
 	install.packages("devtools")
 }
