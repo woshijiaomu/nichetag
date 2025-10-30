@@ -68,6 +68,56 @@ write.csv(niche2clone.df,file = "niche2clone.csv")
 #nnt=nichenetwork(tag_expression,cell_clusters,share_method="mean")
 #dnnt=Dnichenetwork(tag_expression,cell_clusters,direction = T)
 
+
+
+
+# nichetag: Reconstruction of Spatial and Lineage Relationships from CellTag-labeled Single-cell Data
+
+**Author:** Dekang Lv  
+**Date:** May 2025  
+
+---
+
+## Introduction
+
+Thank you for your interest in the **nichetag** approach.  
+This guide describes how to apply the package to your intercellular RNA-barcode delivery experiment (*Multiplexed Oligonucleotide Spatial Ancestry Interaction Coding*, **MOSAIC**).  
+
+MOSAIC utilizes conditionally expressed, proximally transmissible `sLP-mCherry-MCP-MS2-CellTag` barcodes to trace the spatiotemporal lineages and communicating networks within intact tissues at single-cell resolution.  
+
+The goal of the **nichetag** package is to use CellTag labels from single-cell transcriptomics data to reconstruct the lineage and spatial proximity relationships of mCherry-positive cells.  
+
+To learn more about this type of experiment and details about the **nichetag** approach, please consult  
+👉 *Bin et al., 2025* ([insert paper URL here]).
+
+This vignette covers:
+
+1. Package installation  
+2. Setting up your input data  
+3. Running the `nichetag` computational pipeline  
+4. Exporting data and session information  
+
+---
+
+## 1. Package Installation
+
+You can install the package and dependencies using:
+
+```r
+# Install dependencies
+install.packages(c("Seurat", "Polychrome", "stringdist", "stringr",
+                   "ggplot2", "cowplot", "igraph", "openxlsx"))
+
+if (!require(devtools)) {
+  install.packages("devtools")
+}
+
+# Install nichetag from GitHub
+if (!require(nichetag)) {
+  devtools::install_github("woshijiaomu/nichetag")
+}
+
+
 #draw clone expression matrix
 clonematrix=Clone_expr(scObject,nnt,seurat_layer="counts")
 write.csv(clonematrix,"clone_matrix.csv")
