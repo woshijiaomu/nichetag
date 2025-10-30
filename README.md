@@ -1,94 +1,14 @@
-# nichetags install guide
-you can install it from github:
-
-```
-install.packages(c("Seurat","Polychrome","stringdist","stringr","ggplot2","cowplot","igraph","openxlsx"))
-if(!require(devtools)){
-	install.packages("devtools")
-}
-if(!require(nichetag)){
-	library(devtools)
-	install_github("woshijiaomu/nichetag")
-}
-```
-
-after installation，attach the package in R：
-
-```
-library(nichetag)
-```
-
-Quick Start Guide：
-
-```
-#attach R package,load sample data
-library(nichetag)
-data(example)
-
-#calculate connectome
-nnt=Dnichenetwork(scObject,groupby="cell_clusters")
-summary(nnt)
-
-#draw clone-clone network
-print_nichenetwork(nnt,file="nichenetwork.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
-
-#draw quanlity control figures
-print_nichetag(nnt, file = "nichetag.pdf")
-print_clustertag(nnt, file = "cluster.pdf")
-tag_cancer_noncancer(nnt, file = "celltype.pdf")
-tag_cci(nnt, file = "cci.pdf")
-clonetype(nnt, file="clonetype.pdf")
-tag_cellclonetype(nnt, file="tag2celltype_clonetype.pdf")
-#draw niche-niche network
-print_nichenet(nnt,file="niche2nichenetwork.pdf",vsize = 10)
-
-#clones and the cells it contains
-clone2cell=nnt$clone
-clone2cell.vec=unlist(lapply(names(clone2cell),function(x){
-  y=clone2cell[[x]]
-  res=rep(x,nrow(y))
-  names(res)=rownames(y)
-  res
-}))
-clone2cell.df=data.frame(clone_code=clone2cell.vec,cell=names(clone2cell.vec))
-clone2cell.df$clone_ID=nnt$cloneID[clone2cell.df$clone_code]
-write.csv(clone2cell.df,file = "clone2cell.csv")
-
-#niches and the clones it contains
-niche2clone=nnt$niche
-niche2clone.vec=unlist(lapply(names(niche2clone),function(x){
-  res=paste(x,names(niche2clone[[x]]),sep=":")
-  res
-}))
-niche2clone.df=as.data.frame(stringr::str_split_fixed(niche2clone.vec,":",n=2))
-colnames(niche2clone.df) = c("niche","clone_code")
-niche2clone.df$clone_ID=nnt$cloneID[niche2clone.df$clone_code]
-write.csv(niche2clone.df,file = "niche2clone.csv")
-
-#nnt=nichenetwork(tag_expression,cell_clusters,share_method="mean")
-#dnnt=Dnichenetwork(tag_expression,cell_clusters,direction = T)
-
-
-
-
 # nichetag: Reconstruction of Spatial and Lineage Relationships from CellTag-labeled Single-cell Data
 
-**Author:** Dekang Lv  
 **Date:** May 2025  
 
 ---
 
 ## Introduction
 
-Thank you for your interest in the **nichetag** approach.  
-This guide describes how to apply the package to your intercellular RNA-barcode delivery experiment (*Multiplexed Oligonucleotide Spatial Ancestry Interaction Coding*, **MOSAIC**).  
+Thank you for your interest in the **nichetag** approach. This guide describes how to apply the package to your intercellular RNA-barcode delivery experiment (*Multiplexed Oligonucleotide Spatial Ancestry Interaction Coding*, **MOSAIC**). MOSAIC utilizes conditionally expressed, proximally transmissible `sLP-mCherry-MCP-MS2-CellTag` barcodes to trace the spatiotemporal lineages and communicating networks within intact tissues at single-cell resolution.  
 
-MOSAIC utilizes conditionally expressed, proximally transmissible `sLP-mCherry-MCP-MS2-CellTag` barcodes to trace the spatiotemporal lineages and communicating networks within intact tissues at single-cell resolution.  
-
-The goal of the **nichetag** package is to use CellTag labels from single-cell transcriptomics data to reconstruct the lineage and spatial proximity relationships of mCherry-positive cells.  
-
-To learn more about this type of experiment and details about the **nichetag** approach, please consult  
-👉 *Bin et al., 2025* ([insert paper URL here]).
+The goal of the **nichetag** package is to use CellTag labels from single-cell transcriptomics data to reconstruct the lineage and spatial proximity relationships of mCherry-positive cells. To learn more about this type of experiment and details about the **nichetag** approach, please consult 👉 *Bin et al., 2025* ([insert paper URL here]).
 
 This vignette covers:
 
@@ -99,7 +19,7 @@ This vignette covers:
 
 ---
 
-## 1. Package Installation
+## Package Installation
 
 You can install the package and dependencies using:
 
@@ -116,10 +36,122 @@ if (!require(devtools)) {
 if (!require(nichetag)) {
   devtools::install_github("woshijiaomu/nichetag")
 }
+```
 
+## Setting up your input data
 
-#draw clone expression matrix
+Now that the package is installed, we load the package and attach its example data. We also load Seurat that will be used to manipulate Seurat Objects in R.
+
+```r
+library(nichetag)
+data(example)
+```
+
+The example data is a single-cell transcriptome (10XGenomics) which was performed in the mCherry+ cells sorted from early (2-week) metastatic lung tissues 4 days after Dox exposure. In addition to gene expression data, cell classification information and CellTag expression profiles within the object are utilized to identify spatial proximity relationships. In this guide we will use the current directory, but you can use the directory of your choice. That is all we need in terms of inputs!  Below is the pre-processsing workflow for obtaining this data:
+
+1. To enable the detection of exogenous genes and tags, a custom mouse reference genome was generated for Cell Ranger (version 8.0.1). The coding sequences of mCherry, BFP, and all relevant CellTag sequences were appended to the mouse genome FASTA file, and their corresponding gene annotations were added to the GTF file under a new gene category. Using these modified files, a new Cell Ranger reference was built using the “cellranger mkref” command. Raw data were then processed using the cellranger count pipeline, aligning reads to the custom reference genome and generating filtered gene-barcode matrices for downstream analysis.
+2. The matrix data was analyzed using the Seurat package (version 4.0.0), and cell clusters were annotated using the SingleR package (version 2.10.0).
+
+## Running the nichetag computational pipeline
+
+Now that we have our gene expresion data, celltag expression profiles and cell type annotation, we have everything we need to run the pipeline.
+
+All the pipeline is mainly packaged into a single function, `Dnichenetwork()`.
+
+Here is a description of the basic arguments it requires:
+
+1. scObject: Seurat object, input seurat object in which tag expression matrix is merged in gene expression matrix
+2. groupby: character, a column name in meta data of the Seurat object, used for clone definition
+3. share_method: min,max,mean, method to calculate connection strength between different clones
+4. direction: True or False, whether or not to distinguish tag-sender or tag-receiver
+
+We have everything we need in our input object to fill these arguments:
+```r
+#calculate connectome
+nnt=Dnichenetwork(scObject,groupby="cell_clusters")
+summary(nnt)
+```
+
+This function returns a list containing connectome information for all FCMs, which mainly includes:
+
+1. tag_matrix: data.frame, CellTag expression matrix of all cells
+2. cell_type: factor, cell type or state used for clone defination
+3. cell_tags: numeric, total expression counts of each CellTag
+4. niche_size: integer, covered cell number of each CellTag
+5. niche_celltypes: integer, covered cell types or cell states by each CellTag
+6. niche_interaction: data.frame, overlapped cell numbers of FCM-FCM pairs
+7. cell_barcode: character, code of each cell, celltagcode+celltypecode
+8. clone list: each element represent a CellTag expression matrix of each clone
+9. clone_size: integer, covered cell number of each clone
+10. niche list: mean CellTag expression of covered cells of all covered clone for each CellTag
+11. clone_interaction: data.frame, overlapped tag expression of clone-clone pairs
+12. cloneID: integer, order of clones when make graph with graph_from_data_frame in igraph
+
+Visualization for connectome data encompass the following functions:
+
+1. print_nichenetwork: Clone network - each vertex represents a clone, and edges between vertices indicate shared CellTags between two clones
+2. print_nichetag: Bar plot - displays the cell number and cell types covered by each FCM
+3. print_clustertag: Density plot - shows the distribution of CellTag expression levels within each cell cluster
+4. tag_cancer_noncancer: Bar plot - comparatively displays the expression levels of each CellTag in cancer cells and stromal cells
+5. tag_cci: Bar plot - shows the distribution of sender and receiver cell counts corresponding to different CellTags
+6. clonetype: Bar plot - displays the cell types and quantities of clones within each FCM
+7. tag_cellclonetype: Bar plot - shows the types and quantities of clones or cells covered by each CellTag
+8. print_nichenet: Clone network - each vertex represents an FCM, and edges between vertices indicate the presence of shared CellTags between two FCMs
+
+We run these functions for visualization:
+```r
+#draw clone-clone network
+print_nichenetwork(nnt,file="nichenetwork.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
+#draw quanlity control figures
+print_nichetag(nnt, file = "nichetag.pdf")
+print_clustertag(nnt, file = "cluster.pdf")
+tag_cancer_noncancer(nnt, file = "celltype.pdf")
+tag_cci(nnt, file = "cci.pdf")
+clonetype(nnt, file="clonetype.pdf")
+tag_cellclonetype(nnt, file="tag2celltype_clonetype.pdf")
+#draw niche-niche network
+print_nichenet(nnt,file="niche2nichenetwork.pdf",vsize = 10)
+```
+
+## Export Data
+
+In addition to the visualization parts above, we can also extract from the connectome object: 
+1. the list of clones contained in each FCM
+2. the list of cells contained in each clone
+3. the average expression matrix for each clone
+
+The information can be written to local CSV files, which can be useful to further analyze the data in R:
+```r
+#clones and the cells it contains
+clone2cell=nnt$clone
+clone2cell.vec=unlist(lapply(names(clone2cell),function(x){
+  y=clone2cell[[x]]
+  res=rep(x,nrow(y))
+  names(res)=rownames(y)
+  res
+}))
+clone2cell.df=data.frame(clone_code=clone2cell.vec,cell=names(clone2cell.vec))
+clone2cell.df$clone_ID=nnt$cloneID[clone2cell.df$clone_code]
+write.csv(clone2cell.df,file = "clone2cell.csv")
+
+#FCMs and the clones it contains
+niche2clone=nnt$niche
+niche2clone.vec=unlist(lapply(names(niche2clone),function(x){
+  res=paste(x,names(niche2clone[[x]]),sep=":")
+  res
+}))
+niche2clone.df=as.data.frame(stringr::str_split_fixed(niche2clone.vec,":",n=2))
+colnames(niche2clone.df) = c("niche","clone_code")
+niche2clone.df$clone_ID=nnt$cloneID[niche2clone.df$clone_code]
+write.csv(niche2clone.df,file = "niche2clone.csv")
+
+#clone expression matrix
 clonematrix=Clone_expr(scObject,nnt,seurat_layer="counts")
 write.csv(clonematrix,"clone_matrix.csv")
-
 ```
+
+## Conclusion
+
+Thank you for following this guide, I hope you made it through the end without too much headache and that it was informative. If you encounter bugs, feel free to raise an issue on nichetag's [github](https://github.com/woshijiaomu/nichetag/issues).
+
+
