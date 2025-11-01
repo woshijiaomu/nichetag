@@ -101,16 +101,16 @@ Visualization for connectome data encompass the following functions:
 We run these functions for visualization:
 ```r
 #graph clone-clone network
-print_nichenetwork(nnt,file="nichenetwork.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
+print_nichenetwork(nnt,file="Clone_Network_Shared_CellTags.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
 #graph quanlity control figures
-print_nichetag(nnt, file = "nichetag.pdf")
-print_clustertag(nnt, file = "cluster.pdf")
-tag_cancer_noncancer(nnt, file = "celltype.pdf")
-tag_cci(nnt, file = "cci.pdf")
-clonetype(nnt, file="clonetype.pdf")
-tag_cellclonetype(nnt, file="tag2celltype_clonetype.pdf")
+print_nichetag(nnt, file = "Niche_CellNumber_CellType.pdf")
+print_clustertag(nnt, file = "Cluster_CellTag_Expression_Density.pdf")
+tag_cancer_noncancer(nnt, file = "CellTag_Expression_Cancer_vs_Stroma.pdf")
+tag_cci(nnt, file = "CellTag_Sender_Receiver_Distribution.pdf")
+clonetype(nnt, file="Niche_Clone_CellType_Composition.pdf")
+tag_cellclonetype(nnt, file="CellTag_Coverage_Clone_Cell.pdf")
 #graph niche-niche network
-print_nichenet(nnt,file="niche2nichenetwork.pdf",vsize = 10)
+print_nichenet(nnt,file="Niche_Network_Shared_CellTags.pdf",vsize = 10)
 ```
 
 ## Export Data
