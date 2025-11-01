@@ -132,7 +132,7 @@ clone2cell.vec=unlist(lapply(names(clone2cell),function(x){
 }))
 clone2cell.df=data.frame(clone_code=clone2cell.vec,cell=names(clone2cell.vec))
 clone2cell.df$clone_ID=nnt$cloneID[clone2cell.df$clone_code]
-write.csv(clone2cell.df,file = "clone2cell.csv")
+write.csv(clone2cell.df,file = "Clone_Cell_Mapping.csv")
 
 #FCMs and the clones it contains
 niche2clone=nnt$niche
@@ -143,11 +143,11 @@ niche2clone.vec=unlist(lapply(names(niche2clone),function(x){
 niche2clone.df=as.data.frame(stringr::str_split_fixed(niche2clone.vec,":",n=2))
 colnames(niche2clone.df) = c("niche","clone_code")
 niche2clone.df$clone_ID=nnt$cloneID[niche2clone.df$clone_code]
-write.csv(niche2clone.df,file = "niche2clone.csv")
+write.csv(niche2clone.df,file = "Niche_Clone_Membership.csv")
 
 #clone expression matrix
 clonematrix=Clone_expr(scObject,nnt,seurat_layer="counts")
-write.csv(clonematrix,"clone_matrix.csv")
+write.csv(clonematrix,"Clone_Expression_Matrix.csv")
 ```
 
 ## Conclusion
