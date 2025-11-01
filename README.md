@@ -100,16 +100,16 @@ Visualization for connectome data encompass the following functions:
 
 We run these functions for visualization:
 ```r
-#draw clone-clone network
+#graph clone-clone network
 print_nichenetwork(nnt,file="nichenetwork.pdf",vertex.label.cex=0.1,vsize=3,esize=1,margin=c(0,0.3,0,0))
-#draw quanlity control figures
+#graph quanlity control figures
 print_nichetag(nnt, file = "nichetag.pdf")
 print_clustertag(nnt, file = "cluster.pdf")
 tag_cancer_noncancer(nnt, file = "celltype.pdf")
 tag_cci(nnt, file = "cci.pdf")
 clonetype(nnt, file="clonetype.pdf")
 tag_cellclonetype(nnt, file="tag2celltype_clonetype.pdf")
-#draw niche-niche network
+#graph niche-niche network
 print_nichenet(nnt,file="niche2nichenetwork.pdf",vsize = 10)
 ```
 
