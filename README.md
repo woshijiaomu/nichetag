@@ -62,12 +62,12 @@ Here is a description of the basic arguments it requires:
 
 1. scObject: Seurat object, input seurat object in which tag expression matrix is merged in gene expression matrix
 2. groupby: character, a column name in meta data of the Seurat object, used for clone definition
-3. share_method: min,max,mean, method to calculate connection strength between different clones
+3. share_method: min,max,mean, method to compute connection strength between different clones
 4. direction: True or False, whether or not to distinguish tag-sender or tag-receiver
 
 We have everything we need in our input object to fill these arguments:
 ```r
-#calculate connectome
+#compute connectome
 nnt=Dnichenetwork(scObject,groupby="cell_clusters")
 summary(nnt)
 ```
