@@ -1,4 +1,4 @@
-# nichetag: Reconstruction of Spatial and Lineage Relationships from CellTag-labeled Single-cell Data
+# NicheTag: Reconstruction of Spatial and Lineage Relationships from CellTag-labeled Single-cell Data
 
 **Date:** May 2025  
 
