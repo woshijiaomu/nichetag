@@ -72,7 +72,7 @@ nnt=Dnichenetwork(scObject,groupby="cell_clusters")
 summary(nnt)
 ```
 
-This function returns a list containing connectome information for all FCMs, which mainly includes:
+This function returns a list containing connectome information for all niches or FCMs, which mainly includes:
 
 1. tag_matrix: data.frame, CellTag expression matrix of all cells
 2. cell_type: factor, cell type or state used for clone defination
